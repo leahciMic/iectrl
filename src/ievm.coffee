@@ -12,7 +12,7 @@ child_process = require 'child_process'
 debug = require 'debug'
 
 class IEVM
-
+  @DEFAULT_TIMEOUT: 60000
   # ## Class Properties
 
   # A list of all available IE versions.
@@ -480,14 +480,14 @@ class IEVM
       return deferred.resolve status if status in statuses
       Q.delay(delay).then => @_waitForStatus statuses, deferred, delay
 
-  waitForRunning: (timeout=60000, delay) ->
+  waitForRunning: (timeout=@DEFAULT_TIMEOUT, delay) ->
     @debug 'waitForRunning'
     deferred = Q.defer()
     @_waitForStatus(@constructor.status.RUNNING, deferred, delay).fail (err) ->
       deferred.reject err
     deferred.promise.timeout timeout
 
-  waitForNotRunning: (timeout=60000, delay) ->
+  waitForNotRunning: (timeout=@DEFAULT_TIMEOUT, delay) ->
     @debug 'waitForNotRunning'
     deferred = Q.defer()
     @_waitForStatus([
@@ -506,7 +506,7 @@ class IEVM
       return deferred.resolve true if runlevel? and parseInt(runlevel) > 2
       Q.delay(delay).then => @_waitForGuestControl deferred, delay
 
-  waitForGuestControl: (timeout=60000, delay) ->
+  waitForGuestControl: (timeout=@DEFAULT_TIMEOUT, delay) ->
     @waitForRunning().then =>
       deferred = Q.defer()
       @_waitForGuestControl(deferred, delay).fail (err) -> deferred.reject err
@@ -521,7 +521,7 @@ class IEVM
       return deferred.resolve true if !runlevel? or parseInt(runlevel) < 2
       Q.delay(delay).then => @_waitForNoGuestControl deferred, delay
 
-  waitForNoGuestControl: (timeout=60000, delay) ->
+  waitForNoGuestControl: (timeout=@DEFAULT_TIMEOUT, delay) ->
     deferred = Q.defer()
     @_waitForNoGuestControl(deferred, delay).fail (err) -> deferred.reject err
     deferred.promise.timeout timeout
